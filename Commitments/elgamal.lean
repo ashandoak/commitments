@@ -1,23 +1,29 @@
 import Mathlib
 
+
 namespace ElGamal
 
-variable (G : Type*) [Fintype G] [Group G] [IsCyclic G]
-variable (q : ℕ) [Fact q.Prime] -- Comes thru with DDH - primality of q is implicit
--- better: variable (g : G) -- can be any fixed generator
+variable (G : Type*) [Fintype G] -- [Group G] [IsCyclic G]
+deriving instance Fintype for Monoid 
 
+variable (q : ℕ) -- No need for this to be declared prime; this will come through with the DDH assumption
+
+variable (g : G) -- g is any fixed generator
+
+-- Proof that the cardinality of G is Zq - is this necessary?
 def G_card_is_Zq : Prop := by sorry
 
-def gen_g : G := by
-  obtain ⟨g, hg⟩ := IsCyclic.exists_generator
-  exact g
+variable (H : Type*) [Group H]
+-- instance : Fintype (Group H)  := by sorry
+deriving instance Fintype for Group
+variable (h : H)
+#check h.elems
 
-def gen_h : G := by
-  -- obtain ⟨h, hh⟩ := IsCyclic.exists_generator
-  -- exact h
-  -- obtain a uniform x - similar to keygen for elgamal less the secret key
-  -- obtain h by raising g to x
-  -- return h
+
+def keygen : PMF (G × ZMod q) :=
+do
+  x ← uniform_zmod q
+  pure (gen_g^x.val, x)
 
 def commit₁ (m : G) (h : G) : ((Zmod q) × G × G) := by
   obtain r : ZMod q := sorry -- uniform?
@@ -37,4 +43,4 @@ lemma isBinding (c : G × G) (m m' : G) : m = m' := by
 
 
 -- Proof that if g is a generator g^r = g_r' <=> r = r'
-end ElGamal
+end ElGamalt
