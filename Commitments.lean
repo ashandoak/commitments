@@ -1,3 +1,3 @@
--- This module serves as the root of the `Commitments` library.
--- Import modules here that should be built as part of the library.
-import «Commitments».Basic
+import Commitments.Basic
+import Commitments.elgamal
+import Commitments.test
