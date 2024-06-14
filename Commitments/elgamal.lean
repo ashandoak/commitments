@@ -20,7 +20,8 @@ do
   pure (g^h.val, h) -- Why does `val` work here?
 
 #check keygen
-#check keygen _ _ _ 
+#check keygen _ _ _
+#check keygen ?_ ..
 #check (keygen _ _ _).1 
 #check keygen G q g 
 
