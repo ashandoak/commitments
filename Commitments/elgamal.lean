@@ -17,7 +17,7 @@ theorem zmod_nonempty {t : ℕ} [NeZero t] : (ZMod.fintype t).elems.Nonempty := 
 def keygen : PMF (G × ZMod q) := -- This works when G, Type, Fintype, Group is provided as a variable
 do
   let h ← PMF.uniformOfFinset (ZMod.fintype q).elems zmod_nonempty
-  pure (g^h.val, h) -- Why does `val` work here?
+  pure (g^h.val, h) 
 
 #check keygen
 #check keygen _ _ _
@@ -28,7 +28,7 @@ do
 def keygen' {G : Type} [Fintype G] [Group G] : PMF (G × ZMod q) := -- This "works" when G not defined as a variable, but can't resolve the final HPow
 do
   let h ← PMF.uniformOfFinset (ZMod.fintype q).elems zmod_nonempty
-  pure (g^h, h) -- Why does `val` work here?
+  pure (g^h, h) 
 
 #check keygen'
 #check keygen' _
@@ -36,10 +36,10 @@ do
 def keygen'' (g : G) : PMF (G × ZMod q) := -- This "works" when G not defined as a variable, but can't resolve the final HPow
 do
   let h ← PMF.uniformOfFinset (ZMod.fintype q).elems zmod_nonempty
-  pure (g^h, h) -- Why does `val` work here?
+  pure (g^h, h)
 
 #check keygen''
-#check keygen'' _ _
+#check keygen'' _ 
 #check keygen'' 3 _
 variable (m : H)
 #check keygen'' 3 m
@@ -57,7 +57,7 @@ do
 def keygen₂ : PMF (G × ZMod q) :=
 do
   let h ← PMF.ofMultiset _ _
-  pure (g^h.val, h) -- Why does `val` work here?
+  pure (g^h.val, h) 
 
 
 
