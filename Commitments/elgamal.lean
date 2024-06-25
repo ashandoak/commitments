@@ -47,32 +47,24 @@ variable (m : H)
 def keygen₁ : PMF (G × ZMod q) :=
 do
   let h ← PMF.uniformOfFintype (ZMod q) -- Becasue ZMod has a Fintype instance? 
-  pure (g^h.val, h) -- Why does `val` work here?
+  pure (g^h.val, h) -- Why does `val` work here? Because we're using do notation here, and the wrapped ZMod q is "assigned" to h, so h *isn't* a PMF
 
-set_option pp.all true
-set_option diagnostics true
 #check keygen₁
 #check @keygen₁
 #print keygen₁
 
-
-
-
-
-
-
-
--- Later...
-
-
-def keygen' : PMF (G × ZMod q) :=
+-- I don't think this is wise.
+def keygen₂ : PMF (G × ZMod q) :=
 do
-  let x ← uniform_zmod q
-  pure (gen_g^x.val, x)
+  let h ← PMF.ofMultiset _ _
+  pure (g^h.val, h) -- Why does `val` work here?
 
-def commit₁ (m : G) (h : G) : ((Zmod q) × G × G) := by
-  obtain r : ZMod q := sorry -- uniform?
-  exact (r, gen_g^r, m*h^r) -- pass h in rather than using def gen_h
+
+
+def commit₁ (m : G) (h : G) : ((Zmod q) × G × G) :=
+do
+  let r ← PMF.uniformOfFintype (ZMod q)
+  pure (r, g^r, m*h^r) -- pass h in rather than using def gen_h
 
 def open₁ (m : G) (r : ZMod q) (c : G × G) : Prop := by
   let c' := ⟨gen_g^r, m*gen_h^r⟩
