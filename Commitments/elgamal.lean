@@ -1,38 +1,62 @@
 import Mathlib
 
-variable (G : Type) [Fintype G] [Group G] -- Ensures Fintype and Group ensures nonempty 
+variable {G : Type} [Fintype G] [Group G] -- Ensures Fintype and Group ensures nonempty 
 variable (q : ℕ) [NeZero q] -- No need for this to be declared prime; this will come through with the DDH assumption 
-variable (g : G) -- g is any fixed generator
+variable {g : G} -- g is any fixed generator
 
 noncomputable section
 
 namespace ElGamal
 
+-- Not presently needed...
+/-
 def uniform_grp : PMF G := PMF.uniformOfFintype G -- A uniform distribution giving all elementst of G probability 1/|G|. Both Group G and Fintype G required here.
 
 theorem zmod_nonempty {t : ℕ} [NeZero t] : (ZMod.fintype t).elems.Nonempty := by -- hmm.. Nonempty is classical - perhaps a different route?
   have h' : 0 < (ZMod.fintype t).elems.card := by sorry
   sorry 
+-/
 
--- This seems like the right direction
 def keygen : PMF (G × ZMod q) :=
 do
-  let h ← PMF.uniformOfFintype (ZMod q) -- Becasue ZMod has a Fintype instance?  TODO: Change h to s
-  pure (g^h.val, h) -- Why does `val` work here? Because we're using do notation here, and the wrapped ZMod q is "assigned" to h, so h *isn't* a PMF
+  let s ← PMF.uniformOfFintype (ZMod q) 
+  pure (g^s.val, s)
 
-def commit (m : G) (h : G) : PMF (ZMod q × G × G) :=
+-- Reversing the order of the opening value and the commitment since Lean projection notation is right associative
+def commit (h : G) (m : G) : PMF ((ZMod q) × G × G) :=
 do
   let r ← PMF.uniformOfFintype (ZMod q)
-  pure (r, g^r.val, m*h^r.val) -- pass h in rather than using def gen_h
-
-def verify (h : G) (m : G) (r : ZMod q) (c : G × G) : Prop := by
-  let c' := (g^r.val, m*h^r.val)   
+  return (r, g^r.val, m*h^r.val)
+  
+def verify (h : G) (m : G) (c : G × G) (o : ZMod q) : Prop := by
+  let c' := (g^o.val, m*h^o.val)   
   exact c' = c
 
-theorem correctness (m : G) (h : G) := -- TODO: Clean this up
+def verify' (h : G) (m : G) (c : PMF (ZMod q × G × G)) : Prop := by
+  let c' := (c.1, g^c.1.val, m*h^c.1.val)   
+  exact c' = c
+
+variable (g' t k : G) [Group G]
+variable (q' : ℕ) [NeZero q']
+#check @commit G _ q' _ g' t k
+#check commit q' t k
+#check (commit q' t k).1
+#check (commit q' t k).2
+#check verify q' t k _ _
+
+example : ZMod q' := Id.run do 
+  let x' ← commit q' t k  
+  pure (x')
+
+example : ENNReal := Id.run do
+  let x' ← commit q' t k  
+  pure (x').2
+
+-- Not sure what the best approach to proving this is - straight proof term?
+theorem correctness : ∀ h m : G, verify q h m (commit q h m) (commit q h m).1 = true :=
 do
-  let c ← (commit₁ m h).1
-  verify₁ h m c.1 (c.2, c.3) := by
+  let c ← (commit₁ h m).1
+  verify h m c.1 (c.2, c.3) := by
   let r := c.1
   let c' := (g^r.val, m*h^r.val)
   exact c' = (c.2, c.3)
