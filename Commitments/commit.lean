@@ -13,7 +13,7 @@ variable (keygen : PMF (G × ZMod q))
          (commit : G → G → PMF ((ZMod q) × G × G))
          (verify : G → G → (ZMod q) × G × G → Prop)
 
-def commit_verify' (m : G) : PMF Prop :=
+def commit_verify (m : G) : PMF Prop :=
 do
   let h ← keygen >>= fun x => return x.1
   let c ← commit h m
