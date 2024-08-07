@@ -13,3 +13,5 @@ do
   let h ← keygen >>= fun x => return x.1
   let c ← commit h m
   return verify h m c
+
+def commit_verify_correct : Prop := ∀ (m : G), commit_verify keygen commit verify m = return 1
