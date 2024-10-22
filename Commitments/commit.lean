@@ -8,6 +8,7 @@ variable {M C O K : Type} [DecidableEq M]
 variable (setup : PMF K)
          (commit : K → M → PMF (C × O))
          (verify : K → M → C × O → ZMod 2)
+         (adversary : K → PMF (C × M × M × O × O))
 
 def commit_verify (m : M) : PMF (ZMod 2) :=
 do
@@ -16,6 +17,8 @@ do
   return (verify k m ⟨c, o⟩)
 
 -- TODO What does equality between PMFs actually mean? 
+-- Lupo uses extensionality (make sense) and the Monadic laws to argue equivalence between PMFs, but I don't quite understand why.
+-- TODO Does FCF or Nowak's toolkit provide more clarity re: PMF equivalence?
 def correctness : Prop := ∀ (m : M), commit_verify setup commit verify m = pure 1  
 
 
@@ -34,11 +37,7 @@ do
   return ⟨c, m, m', o, o'⟩
 
 
-/-
-def computational_binding (h : K) : Prop :=
-  ∀ A : binding_adversary -- but this doesn't work because binding_adversary is not a type... 
--/
-
+-- TODO This should be probablistic - each field should be initialized from a single probablistic process?
 structure Binding_Adversary (h : K) where
   c : C
   m : M
@@ -46,13 +45,29 @@ structure Binding_Adversary (h : K) where
   o : O
   o' : O
 
+-- TODO This is our helper that can be used to define compuation binding 
+def compBind : PMF (ZMod 2) :=
+do
+  let h ← setup
+  let (c, m, m', o, o') ← adversary h
+  if verify h m ⟨c,o⟩ = 1 ∧ verify h m' ⟨c, o'⟩ = 1 ∧ m != m' then pure 1 else pure 0 
+
+-- TODO Figure out if we can use pattern matching rather than projections. Note Lupo's point on page 16
+-- if verify h b.2.1 ⟨b.1, b.2.2.2.1⟩ = verify h b.2.2.1 ⟨b.1, b.2.2.2.2⟩ then pure 1 else pure 0 
+
+def computational_binding (ε : ENNReal) : Prop := compBind setup _ _ _ < ε
+
+
+
+
 -- TODO Does this also need a do_binding or similar? h should be sampled as part of the process.
-def computational_binding (h : K) : Prop :=
+/-
+\ def computational_binding (h : K) : Prop :=
   ∀ A : Binding_Adversary h,
     if verify h A.m ⟨A.c, A.o⟩ = verify h A.m' ⟨A.c, A.o'⟩
       then if A.m != A.m' then true else false
       else false
-
+-/
 /-
 def perfect_hiding : PMF Prop :=
   ∀ (m m' : M) (c : C),
