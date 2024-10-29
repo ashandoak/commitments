@@ -26,26 +26,7 @@ def perfect_binding : Prop :=
   ∀ (h : K) (c : C) (m m' : M) (o o' : O), 
     if verify h m ⟨c,o⟩ = verify h m' ⟨c, o'⟩ then true else false 
 
--- This seems wrong... binding_adversary should get setup parameters, not a key, but we've declared K as the key space...?
-def binding_adversary (h : K) : PMF (C × M × M × O × O) :=
-do
-  let c ← sorry
-  let m ← sorry
-  let m' ← sorry
-  let o ← sorry
-  let o' ← sorry
-  return ⟨c, m, m', o, o'⟩
-
-
--- TODO This should be probablistic - each field should be initialized from a single probablistic process?
-structure Binding_Adversary (h : K) where
-  c : C
-  m : M
-  m' : M
-  o : O
-  o' : O
-
--- TODO This is our helper that can be used to define compuation binding 
+-- Helper function that can be used to define compuational binding 
 def compBind : PMF (ZMod 2) :=
 do
   let h ← setup
@@ -55,29 +36,23 @@ do
 -- TODO Figure out if we can use pattern matching rather than projections. Note Lupo's point on page 16
 -- if verify h b.2.1 ⟨b.1, b.2.2.2.1⟩ = verify h b.2.2.1 ⟨b.1, b.2.2.2.2⟩ then pure 1 else pure 0 
 
-def computational_binding (ε : ENNReal) : Prop := compBind setup _ _ _ < ε
+def computational_binding (ε : ENNReal) : Prop := compBind setup verify adversary 1  < ε
 
+-- compBind returns a PMF ZMod 2
+#check compBind setup verify adversary 
 
+-- Wrapping a Nat in a PMF produces a PMF ℕ
+#check PMF.pure 1
 
+-- Passing a ℕ to the PMF ℕ returns an ENNReal, since PMF is a function α → ENNReal
+#check PMF.pure 1 1
 
--- TODO Does this also need a do_binding or similar? h should be sampled as part of the process.
-/-
-\ def computational_binding (h : K) : Prop :=
-  ∀ A : Binding_Adversary h,
-    if verify h A.m ⟨A.c, A.o⟩ = verify h A.m' ⟨A.c, A.o'⟩
-      then if A.m != A.m' then true else false
-      else false
--/
-/-
-def perfect_hiding : PMF Prop :=
-  ∀ (m m' : M) (c : C),
-    let something := do
-      let h ← setup
-      let commit₁ := commit h m
-      let commit₂ := commit h m'
-      if commit₁.1 = c then true else false
-      
--/
+-- Similarly, wrapping a String in a PMF produces the distribution where "a" is assigned probability 1 and all other values are assigned probability 0
+#check PMF.pure "a" "b"
+
+-- So we should be able to check the resulting probability value for any given element of the presumed set
+#check PMF.pure "a" "b" = 1
+
 
 def do_commit (m : M) : PMF C :=
 do
