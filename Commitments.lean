@@ -1,5 +1,6 @@
 import Commitments.Basic
 import Commitments.commit
+import Commitments.dlog
 import Commitments.elgamal
 import Commitments.pedersen
 import Commitments.sampling
