@@ -2,6 +2,7 @@ import Mathlib
 
 noncomputable section
 
+namespace Commit
 -- Spaces for messages (M), commitments (C), opening values (O) and keys (K)
 variable {M C O K : Type} [DecidableEq M] 
 
@@ -31,7 +32,7 @@ def compBind : PMF (ZMod 2) :=
 do
   let h ← setup
   let (c, m, m', o, o') ← adversary h
-  if verify h m ⟨c,o⟩ = 1 ∧ verify h m' ⟨c, o'⟩ = 1 ∧ m != m' then pure 1 else pure 0 
+  if verify h m ⟨c,o⟩ = 1 ∧ verify h m' ⟨c, o'⟩ = 1 ∧ m ≠ m' then pure 1 else pure 0 
 
 -- TODO Figure out if we can use pattern matching rather than projections. Note Lupo's point on page 16
 -- if verify h b.2.1 ⟨b.1, b.2.2.2.1⟩ = verify h b.2.2.1 ⟨b.1, b.2.2.2.2⟩ then pure 1 else pure 0 
@@ -60,6 +61,5 @@ do
   let (c, _) ← commit h m
   return c
 
-
 -- TODO How to get the notion of a distribtuion into a Prop?
-def perfect_hiding' : Prop := ∀ (m m' : M), do_commit setup commit m = do_commit setup commit m'
+def perfect_hiding : Prop := ∀ (m m' : M), ∀ (c : C), do_commit setup commit m c = do_commit setup commit m' c

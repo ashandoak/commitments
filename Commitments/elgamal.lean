@@ -31,7 +31,7 @@ do
 def verify (h : G) (m : G) (c : G × G) (o : ZMod q) : Prop := by
   let c' := (g^o.val, m*h^o.val)   
   exact c' = c
-
+/-
 -- TODO: Check to see what Decidable typeclass could be used here?
 def verify' (h : G) (m : G) (c : PMF (G × G)) (o : PMF (ZMod q)) : PMF Bool := 
 do  
@@ -43,7 +43,7 @@ do
 def verify'' (h : G) (m : G) (c : PMF (G × G)) (o : PMF (ZMod q)) : Prop := 
   (c >>= fun x => return c.1)
 
-def verify''' (h : G) (m : G) (c : G × G) (o : ZMod q) : ZMod 2 := 
+def verify''' (h : G) (m : G) (c : G × G) (o : ZMod q) : ZMod 2 := sorry 
 
 variable (g' t k : G) [Group G]
 variable (q' : ℕ) [NeZero q']
@@ -85,4 +85,6 @@ lemma isBinding (c : G × G) (m m' : G) : m = m' := by
 -/
 
 -- Proof that if g is a generator g^r = g_r' <=> r = r'
+-/
 end ElGamal
+

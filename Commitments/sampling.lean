@@ -16,7 +16,7 @@ def x : I := ⟨0.5, ⟨by norm_num, by norm_num⟩⟩
 --         Quot.mk (fun f g ↦ (f - g).LimZero) ⟨fun x ↦ { num := Int.ofNat 1, den := 2, den_nz := ⋯, reduced := ⋯ }, ⋯⟩ },
 --     x.proof_1⟩
 
-#reduce (proofs := true) Y x
+--#reduce (proofs := true) Y x
 
 -- (deterministic) timeout at `whnf`, maximum number of heartbeats (200000) has been reached
 -- Use `set_option maxHeartbeats <num>` to set the limit.
